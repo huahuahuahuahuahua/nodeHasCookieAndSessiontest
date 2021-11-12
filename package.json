@@ -1,0 +1,24 @@
+{
+  "name": "nodehascookieandsession-test",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "cross-env NODE_ENV=production webpack --config build/webpack.config.js",
+    "start.dev": "cross-env NODE_ENV=dev nodemon ./bin/www.js",
+    "start.prd": "cross-env NODE_ENV=production nodemon ./bin/www.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "cross-env": "^7.0.3",
+    "nodemon": "^2.0.15"
+  },
+  "dependencies": {
+    "lodash": "^4.17.21",
+    "mysql": "^2.18.1",
+    "redis": "^3.1.2"
+  }
+}
