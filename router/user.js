@@ -1,14 +1,16 @@
+const querystring = require("querystring");
+
 const userRouterHandle = (req, res) => {
   const path = req.url.split("?")[0];
   const getStr = req.url.split("?")[1];
   const getData = querystring.parse(getStr);
-  console.log(getData);
+  // console.log(getData);
   const method = req.method;
   if (path === "/api/user/list" && method === "GET") {
-    res.send("用户列表");
+    res.end("用户列表");
   }
   if (path === "/api/user/detail" && method === "GET") {
-    res.send("用户细节");
+    res.end("用户细节");
   }
   if (method === "GET" && path === "/api/user/login") {
     res.send("用户登录");
@@ -18,7 +20,7 @@ const userRouterHandle = (req, res) => {
   }
 
   if (method === "POST" && path === "/api/user/login") {
-    res.send("用户登录");
+    res.end("用户登录");
   }
   if (method === "POST" && path === "/api/user/delete") {
     res.send("删除用户");
@@ -30,4 +32,4 @@ const userRouterHandle = (req, res) => {
     res.send("编辑用户");
   }
 };
-module.exports = blogRouterHandle;
+module.exports = userRouterHandle;

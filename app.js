@@ -1,20 +1,51 @@
-const { method } = require("lodash");
+const { method, reject } = require("lodash");
+const { resolve } = require("path/posix");
 const querystring = require("querystring");
-const blogRouterHandle = require("./router/blogRouterHandle");
-const userRouterHandle = require("./router/userRouterHandle");
-const httpServerHandle = (req, res) => {
-  blogRouterHandle(req, res);
-  blogRouterHandle(req, res);
-  //   const myURL = new URL(req.url);
-  //   console.log(myURL.hostname);
-  //   console.log(myURL.search);
-  //   console.log(req.url);
-  const path = req.url.split("?")[0];
-  const getStr = req.url.split("?")[1];
-  const getData = querystring.parse(getStr);
-  console.log(getData);
-  const method = req.method;
+const blogRouterHandle = require("./router/blog");
+const userRouterHandle = require("./router/user");
 
-  res.end("hello");
+//处理url上传的参数为json格式
+const getPostData = (req) => {
+  const method = req.method;
+  const contentType = req.headers["content-type"];
+  // console.log(contentType);
+  const promise = new Promise((resolve, reject) => {
+    if (
+      method !== "POST" ||
+      contentType !== "application/x-www-form-urlencoded"
+    ) {
+      // || contentType !== "application/json"
+      resolve({});
+      return;
+    } else {
+      let postData = "";
+      req.on("data", (chunk) => {
+        postData += chunk;
+      });
+      req.on("end", () => {
+        if (!postData) {
+          resolve({});
+          return;
+        }
+        resolve(JSON.parse(postData));
+        // console.log("postData", postData);
+      });
+    }
+  });
+  return promise;
+  // console.log(contentType);
+};
+
+const httpServerHandle = (req, res) => {
+  getPostData(req).then((result) => {
+    req.body = result;
+    const blogRouter = blogRouterHandle(req, res);
+    if (blogRouter) {
+      blogRouter.then((data) => {
+        res.end(JSON.stringify(data));
+      });
+    }
+    userRouterHandle(req, res);
+  });
 };
 module.exports = httpServerHandle;
