@@ -36,7 +36,7 @@ const deleteUser = (id) => {
 };
 
 const login = (username, password) => {
-  let sql = `swlect * from users where username = "${username}" and password= "${password}";`;
+  let sql = `select * from users where username = "${username}" and password= "${password}";`;
   return execSql(sql);
 };
 

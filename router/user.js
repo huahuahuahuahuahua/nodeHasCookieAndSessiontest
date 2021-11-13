@@ -1,14 +1,23 @@
 const querystring = require("querystring");
 const getCurrentTime = require("../util/getCurrentTime");
+const {
+  getList,
+  getDetail,
+  createUser,
+  editUser,
+  deleteUser,
+  login,
+} = require("../controller/user");
+const { SuccessModel, ErrorModel } = require("../model/resModel");
 
 const userRouterHandle = (req, res) => {
   const path = req.url.split("?")[0];
   const getStr = req.url.split("?")[1];
   const getData = querystring.parse(getStr);
-  // console.log(getData);
+  console.log("req.body", req.body);
   const method = req.method;
   const postData = req.body;
-  console.log("postData", postData);
+
   if (path === "/api/user/list" && method === "GET") {
     const keyword = getData.keyword;
     const promise = getList(keyword);
@@ -16,6 +25,7 @@ const userRouterHandle = (req, res) => {
       return new SuccessModel(sqlData, "ok");
     });
   }
+
   if (path === "/api/user/detail" && method === "GET") {
     const id = getData.id;
     const promise = getDetail(id);
@@ -23,6 +33,7 @@ const userRouterHandle = (req, res) => {
       return new SuccessModel(sqlData[0], "ok");
     });
   }
+
   if (path === "/api/blog/create" && method === "POST") {
     const username = postData.username;
     const realname = postData.realname;
@@ -55,11 +66,12 @@ const userRouterHandle = (req, res) => {
       }
     });
   }
+
+  //用户注册
   if (method === "POST" && path === "/api/user/login") {
     const username = postData.username;
     const password = postData.password;
     const currentTime = getCurrentTime();
-
     const promise = login(username, password);
     return promise.then((sqlData) => {
       if (sqlData.length > 0) {
@@ -83,13 +95,18 @@ const userRouterHandle = (req, res) => {
   }
   //用户登录
   if (method === "GET" && path === "/api/user/login") {
-    const username = postData.username;
-    const password = postData.password;
+    console.log("getData", getData);
+    const username = getData.username;
+    const password = getData.password;
     const currentTime = getCurrentTime();
-
     const promise = login(username, password);
     return promise.then((sqlData) => {
+      console.log("sqlData", sqlData);
       if (sqlData.length > 0) {
+        res.setHeader("Set-Cookie", [
+          `username=${username};httpOnly;path=/`,
+          `password=${password};httpOnly;path=/`,
+        ]);
         return new SuccessModel(
           {
             tip: "注册成功，id为：" + sqlData.insertId,
@@ -112,11 +129,21 @@ const userRouterHandle = (req, res) => {
     // res.end("login-test");
     const currentTime = getCurrentTime();
     return Promise.resolve(
-      {
-        tip: "登录验证",
-        checkTime: currentTime,
-      },
-      "ok"
+      req.cookie.username
+        ? new SuccessModel(
+            {
+              tip: req.cookie.username + "登录成功",
+              checkTime: currentTime,
+            },
+            "ok"
+          )
+        : new ErrorModel(
+            {
+              tip: req.cookie.username + "登录失败",
+              checkTime: currentTime,
+            },
+            "error"
+          )
     );
   }
 

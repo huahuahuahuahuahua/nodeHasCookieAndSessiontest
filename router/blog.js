@@ -7,6 +7,7 @@ const {
   deleteBlog,
 } = require("../controller/blog");
 const { SuccessModel, ErrorModel } = require("../model/resModel");
+
 const blogRouterHandle = (req, res) => {
   const path = req.url.split("?")[0];
   const getStr = req.url.split("?")[1];
@@ -20,17 +21,11 @@ const blogRouterHandle = (req, res) => {
     promise = getList(author, keyword);
     return promise
       .then((data) => {
-        // console.log("data", data);
         return new SuccessModel(data, "ok");
       })
       .catch((err) => {
         console.log(err);
       });
-
-    // return res.then((sqlData) => {
-    //   return new SuccessModel();
-    // });
-    // res.end("博客列表");
   }
   if (path === "/api/blog/detail" && method === "GET") {
     const { id } = getData;
