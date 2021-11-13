@@ -9,7 +9,7 @@ const {
   login,
 } = require("../controller/user");
 const { SuccessModel, ErrorModel } = require("../model/resModel");
-
+const { setRedis, getRedis } = require("../exec/execRedis");
 const userRouterHandle = (req, res) => {
   const path = req.url.split("?")[0];
   const getStr = req.url.split("?")[1];
@@ -103,13 +103,20 @@ const userRouterHandle = (req, res) => {
     return promise.then((sqlData) => {
       console.log("sqlData", sqlData);
       if (sqlData.length > 0) {
-        res.setHeader("Set-Cookie", [
-          `username=${username};httpOnly;path=/`,
-          `password=${password};httpOnly;path=/`,
-        ]);
+        console.log("session", req.session);
+        req.session.username = username;
+        req.session.password = password;
+        res.setHeader("Set-Cookie", `userId=${req.userId};httpOnly;path=/`);
+        setRedis(req.userId, req.session);
+        //设置cookie
+        // res.setHeader("Set-Cookie", [
+        //   `username=${username};httpOnly;path=/`,
+        //   `password=${password};httpOnly;path=/`,
+        // ]);
+
         return new SuccessModel(
           {
-            tip: "注册成功，id为：" + sqlData.insertId,
+            tip: "登录成功，id为：" + sqlData.insertId,
             createTime: currentTime,
           },
           "ok"
@@ -129,17 +136,17 @@ const userRouterHandle = (req, res) => {
     // res.end("login-test");
     const currentTime = getCurrentTime();
     return Promise.resolve(
-      req.cookie.username
+      req.session.username
         ? new SuccessModel(
             {
-              tip: req.cookie.username + "登录成功",
+              tip: req.session.username + "登录成功",
               checkTime: currentTime,
             },
             "ok"
           )
         : new ErrorModel(
             {
-              tip: req.cookie.username + "登录失败",
+              tip: req.session.username + "登录失败",
               checkTime: currentTime,
             },
             "error"

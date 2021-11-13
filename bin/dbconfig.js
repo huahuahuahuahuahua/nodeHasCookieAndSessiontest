@@ -3,6 +3,8 @@
  */
 // const mysql = require("mysql");
 let MYSQL_CONF;
+let REDIS_CONF = {};
+
 const env = process.env.NODE_ENV;
 //数据库配置
 if (env === "dev") {
@@ -13,6 +15,10 @@ if (env === "dev") {
     password: "123456",
     database: "blogstest",
   };
+  REDIS_CONF = {
+    host: "192.168.152.131",
+    port: "6379",
+  };
 }
 if (env === "production") {
   MYSQL_CONF = {
@@ -22,8 +28,13 @@ if (env === "production") {
     password: "123456",
     database: "blogstest",
   };
+  REDIS_CONF = {
+    host: "192.168.152.131",
+    port: "6379",
+  };
 }
 
 module.exports = {
   MYSQL_CONF,
+  REDIS_CONF,
 };
